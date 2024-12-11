@@ -82,6 +82,179 @@ class _LaporanPageState extends State<LaporanPage> {
     }
   }
 
+  // Future<void> fetchdata() async {
+  //   setState(() {
+  //     isLoading = true;
+  //   });
+
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   String? token = prefs.getString('token');
+  //   List<String>? dataLocal = prefs.getStringList('local_permanent');
+  //   int? user_id = prefs.getInt('user_id');
+  //   print("data local: $dataLocal");
+  //   String kategori;
+  //   if (dropdownValue == 'Pembelian') {
+  //     kategori = 'pengeluaran';
+  //   } else if (dropdownValue == 'Penjualan') {
+  //     kategori = 'pemasukan';
+  //   } else {
+  //     kategori = dropdownValue;
+  //     kategori = kategori.toLowerCase();
+  //   }
+  //   String date1Formatted = DateFormat('yyyy-MM-dd').format(
+  //     DateFormat('dd-MM-yyyy').parse(_dateController1.text),
+  //   );
+  //   String date2Formatted = DateFormat('yyyy-MM-dd').format(
+  //     DateFormat('dd-MM-yyyy').parse(_dateController2.text),
+  //   );
+
+  //   bool isConnected = await _checkInternetConnection();
+  //  String enableStokLimitParam = kategori == 'stok' && _isChecked
+  //       ? '&enable_stok_limit=$_isChecked'
+  //       : '';
+
+  //   if (isConnected == true) {
+  //     try {
+  //       print(
+  //           'https://dposlite.my.id/api/getlaporan?&tanggal_awal=$date1Formatted&tanggal_akhir=$date2Formatted&filter=$kategori$enableStokLimitParam&search_barang=${_searchController.text}');
+
+  //       final response = await http.get(
+  //         Uri.parse(
+  //           'https://dposlite.my.id/api/getlaporan?&tanggal_awal=$date1Formatted&tanggal_akhir=$date2Formatted&filter=$kategori$enableStokLimitParam&search_barang=${_searchController.text}',
+  //         ),
+  //         headers: {
+  //           'Accept': 'application/json',
+  //           'Authorization': 'Bearer $token',
+  //         },
+  //       );
+
+  //       if (response.statusCode == 200) {
+  //         var responseBody = jsonDecode(response.body);
+  //         print("Response Body: $responseBody");
+
+  //         var laporanData = responseBody['data'];
+
+  //         if (laporanData != null) {
+  //           prefs.setString('laporanData', jsonEncode(laporanData));
+
+  //           setState(() {
+  //             laporanList = laporanData;
+  //             print(laporanList);
+  //             isLoading = false;
+  //           });
+
+  //           print("data api: $laporanList");
+  //         } else {
+  //           print("No data found");
+  //         }
+  //       } else {}
+  //     } catch (error) {
+  //       print('Error fetching data: $error');
+  //       setState(() {
+  //         isLoading = false;
+  //       });
+  //     }
+  //   } else {
+  //     if (dataLocal != null) {
+  //       Map<String, Map<String, dynamic>> aggregatedData =
+  //           {};
+
+  //       print('Selected Category: $kategori');
+
+  //       for (var transactionJson in dataLocal) {
+  //         try {
+  //           var transaction = jsonDecode(transactionJson);
+
+  //           if (transaction.containsKey('user_id') &&
+  //               transaction['user_id'] == user_id) {
+  //             if (transaction.containsKey('kategori')) {
+  //               String transactionCategory =
+  //                   transaction['kategori'].toString().trim().toLowerCase();
+  //               print('Transaction Category: $transactionCategory');
+
+  //               if (transactionCategory == kategori) {
+  //                 if (transaction['tanggal_transaksi'] is String) {
+  //                   String tanggal =
+  //                       transaction['tanggal_transaksi'].split('T')[0];
+
+  //                   DateTime transactionDate = DateTime.parse(tanggal);
+  //                   DateTime startDate = DateTime.parse(date1Formatted);
+  //                   DateTime endDate = DateTime.parse(date2Formatted);
+
+  //                   if (transactionDate.isAfter(startDate) &&
+  //                           transactionDate.isBefore(endDate) ||
+  //                       transactionDate.isAtSameMomentAs(startDate) ||
+  //                       transactionDate.isAtSameMomentAs(endDate)) {
+  //                     double totalHarga = double.tryParse(
+  //                             transaction['total_harga']
+  //                                 .toString()
+  //                                 .replaceAll('.', '')
+  //                                 .replaceAll(',', '')) ??
+  //                         0;
+  //                     double potongan = double.tryParse(transaction['potongan']
+  //                             .toString()
+  //                             .replaceAll('.', '')
+  //                             .replaceAll(',', '')) ??
+  //                         0;
+
+  //                     if (!aggregatedData.containsKey(tanggal)) {
+  //                       aggregatedData[tanggal] = {
+  //                         'tanggal_transaksi': DateFormat('dd/MM/yyyy')
+  //                             .format(DateTime.parse(tanggal)),
+  //                         'total_penjualan': 0,
+  //                         'total_harga': 0,
+  //                         'total_potongan': 0,
+  //                         'omset': 0,
+  //                       };
+  //                     }
+
+  //                     aggregatedData[tanggal]!['total_penjualan'] =
+  //                         aggregatedData[tanggal]!['total_penjualan'] +
+  //                             1;
+  //                     aggregatedData[tanggal]!['total_harga'] =
+  //                         aggregatedData[tanggal]!['total_harga'] + totalHarga;
+  //                     aggregatedData[tanggal]!['total_potongan'] =
+  //                         aggregatedData[tanggal]!['total_potongan'] + potongan;
+  //                     aggregatedData[tanggal]!['omset'] = aggregatedData[
+  //                         tanggal]!['total_harga'];
+  //                   }
+  //                 } else {
+  //                   print('Invalid date format for transaction: $transaction');
+  //                 }
+  //               } else {
+  //                 print(
+  //                     'Transaction category does not match filter: $transaction');
+  //               }
+  //             } else {
+  //               print('Kategori field is missing in transaction: $transaction');
+  //             }
+  //           } else {
+  //             print('Transaction user_id does not match: $transaction');
+  //           }
+  //         } catch (e) {
+  //           print('Error processing transaction data: $e');
+  //         }
+  //       }
+
+  //       // Konversi aggregatedData ke dalam list
+  //       List<Map<String, dynamic>> laporanData = aggregatedData.values.toList();
+
+  //       prefs.setString('laporanData', jsonEncode(laporanData));
+
+  //       setState(() {
+  //         print("Filtered data: $laporanData");
+  //         laporanList = laporanData;
+  //         isLoading = false;
+  //       });
+  //     } else {
+  //       setState(() {
+  //         isLoading = false;
+  //         laporanList = [];
+  //       });
+  //     }
+  //   }
+  // }
+
   Future<void> fetchdata() async {
     setState(() {
       isLoading = true;
@@ -90,16 +263,14 @@ class _LaporanPageState extends State<LaporanPage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
     List<String>? dataLocal = prefs.getStringList('local_permanent');
-    print(dataLocal);
-    String kategori;
-    if (dropdownValue == 'Pembelian') {
-      kategori = 'Pengeluaran';
-    } else if (dropdownValue == 'Penjualan') {
-      kategori = 'Pemasukan';
-    } else {
-      kategori = dropdownValue;
-      kategori = kategori.toLowerCase();
-    }
+    int? user_id = prefs.getInt('user_id');
+
+    String kategori = dropdownValue.toLowerCase() == 'pembelian'
+        ? 'pengeluaran'
+        : dropdownValue.toLowerCase() == 'penjualan'
+            ? 'pemasukan'
+            : dropdownValue.toLowerCase();
+
     String date1Formatted = DateFormat('yyyy-MM-dd').format(
       DateFormat('dd-MM-yyyy').parse(_dateController1.text),
     );
@@ -108,41 +279,44 @@ class _LaporanPageState extends State<LaporanPage> {
     );
 
     bool isConnected = await _checkInternetConnection();
+    String enableStokLimitParam = kategori == 'stok' && _isChecked
+        ? '&enable_stok_limit=$_isChecked'
+        : '';
 
-    if (isConnected == true) {
+    if (isConnected) {
       try {
-        print(
-            'https://flea-vast-sadly.ngrok-free.app/api/getlaporan?tanggal_awal=$date1Formatted&tanggal_akhir=$date2Formatted&filter=$kategori&enable_stok_limit=$_isChecked&search_barang=${_searchController.text}');
         final response = await http.get(
           Uri.parse(
-            'https://flea-vast-sadly.ngrok-free.app/api/getlaporan?tanggal_awal=$date1Formatted&tanggal_akhir=$date2Formatted&filter=$kategori&enable_stok_limit=$_isChecked&search_barang=${_searchController.text}',
+            'https://dposlite.my.id/api/getlaporan?&tanggal_awal=$date1Formatted&tanggal_akhir=$date2Formatted&filter=$kategori$enableStokLimitParam&search_barang=${_searchController.text}',
           ),
           headers: {
             'Accept': 'application/json',
             'Authorization': 'Bearer $token',
           },
         );
-
+        print(            'https://dposlite.my.id/api/getlaporan?&tanggal_awal=$date1Formatted&tanggal_akhir=$date2Formatted&filter=$kategori$enableStokLimitParam&search_barang=${_searchController.text}',);
         if (response.statusCode == 200) {
           var responseBody = jsonDecode(response.body);
-          print("Response Body: $responseBody");
+          var laporanData = responseBody['data'];
 
-          if (responseBody.containsKey('data')) {
-            var data = responseBody['data'];
-
-            prefs.setString('laporanData', jsonEncode(data));
+          if (laporanData != null) {
+            dropdownValue == 'Stok' || dropdownValue == 'Terlaris'
+                ? laporanData
+                : laporanData.sort((a, b) =>
+                    DateTime.parse(b['tanggal_transaksi'])
+                        .compareTo(DateTime.parse(a['tanggal_transaksi'])));
+                
+            prefs.setString('laporanData', jsonEncode(laporanData));
+            print('data api: $laporanData');
             setState(() {
-              laporanList = data;
-              print(laporanList);
+              laporanList = laporanData;
               isLoading = false;
             });
-            print("data api: $laporanList");
           } else {
-            print('Data array not found in the response');
-            setState(() {
-              isLoading = false;
-            });
+            print("No data found");
           }
+        } else {
+          print("Failed to fetch data");
         }
       } catch (error) {
         print('Error fetching data: $error');
@@ -154,79 +328,60 @@ class _LaporanPageState extends State<LaporanPage> {
       if (dataLocal != null) {
         Map<String, Map<String, dynamic>> aggregatedData = {};
 
-        print('Selected Category: $kategori');
-
-        for (String transactionJson in dataLocal) {
+        for (var transactionJson in dataLocal) {
           try {
             var transaction = jsonDecode(transactionJson);
 
-            if (transaction.containsKey('kategori')) {
-              String transactionCategory =
-                  transaction['kategori'].toString().trim().toLowerCase();
-              print('Transaction Category: $transactionCategory');
+            if (transaction['user_id'] == user_id &&
+                transaction['kategori'].toString().trim().toLowerCase() ==
+                    kategori) {
+              String tanggal = transaction['tanggal_transaksi'].split('T')[0];
 
-              if (transactionCategory == kategori?.trim().toLowerCase()) {
-                if (transaction['tanggal_transaksi'] is String) {
-                  String tanggal =
-                      transaction['tanggal_transaksi'].split('T')[0];
+              DateTime transactionDate = DateTime.parse(tanggal);
+              DateTime startDate = DateTime.parse(date1Formatted);
+              DateTime endDate = DateTime.parse(date2Formatted);
 
-                  DateTime transactionDate = DateTime.parse(tanggal);
-                  DateTime startDate = DateTime.parse(date1Formatted);
-                  DateTime endDate = DateTime.parse(date2Formatted);
+              if ((transactionDate.isAfter(startDate) &&
+                      transactionDate.isBefore(endDate)) ||
+                  transactionDate.isAtSameMomentAs(startDate) ||
+                  transactionDate.isAtSameMomentAs(endDate)) {
+                double totalHarga = double.tryParse(transaction['total_harga']
+                        .toString()
+                        .replaceAll('.', '')) ??
+                    0;
+                double potongan = double.tryParse(transaction['potongan']
+                        .toString()
+                        .replaceAll('.', '')) ??
+                    0;
 
-                  if (transactionDate.isAfter(startDate) &&
-                          transactionDate.isBefore(endDate) ||
-                      transactionDate.isAtSameMomentAs(startDate) ||
-                      transactionDate.isAtSameMomentAs(endDate)) {
-                    double totalHarga = double.tryParse(
-                            transaction['total_harga']
-                                .toString()
-                                .replaceAll('.', '')
-                                .replaceAll(',', '')) ??
-                        0;
-                    double potongan = double.tryParse(transaction['potongan']
-                            .toString()
-                            .replaceAll('.', '')
-                            .replaceAll(',', '')) ??
-                        0;
+                aggregatedData.putIfAbsent(
+                    tanggal,
+                    () => {
+                          'tanggal_transaksi':
+                              DateFormat('dd/MM/yyyy').format(transactionDate),
+                          'total_penjualan': 0,
+                          'total_harga': 0,
+                          'total_potongan': 0,
+                          'omset': 0,
+                        });
 
-                    if (!aggregatedData.containsKey(tanggal)) {
-                      aggregatedData[tanggal] = {
-                        'tanggal': DateFormat('dd/MM/yyyy')
-                            .format(DateTime.parse(tanggal)),
-                        'jumlah_transaksi': 0,
-                        'total_harga': 0,
-                        'total_potongan': 0,
-                        'omset': 0,
-                      };
-                    }
-
-                    aggregatedData[tanggal]!['jumlah_transaksi'] =
-                        aggregatedData[tanggal]!['jumlah_transaksi'] + 1;
-                    aggregatedData[tanggal]!['total_harga'] =
-                        aggregatedData[tanggal]!['total_harga'] + totalHarga;
-                    aggregatedData[tanggal]!['total_potongan'] =
-                        aggregatedData[tanggal]!['total_potongan'] + potongan;
-
-                    aggregatedData[tanggal]!['omset'] =
-                        aggregatedData[tanggal]!['total_harga'];
-                  }
-                } else {
-                  print('Invalid date format for transaction: $transaction');
-                }
-              } else {
-                print(
-                    'Transaction category does not match filter: $transaction');
+                aggregatedData[tanggal]!['total_penjualan'] += 1;
+                aggregatedData[tanggal]!['total_harga'] += totalHarga;
+                aggregatedData[tanggal]!['total_potongan'] += potongan;
+                aggregatedData[tanggal]!['omset'] =
+                    aggregatedData[tanggal]!['total_harga'];
               }
-            } else {
-              print('Kategori field is missing in transaction: $transaction');
             }
           } catch (e) {
             print('Error processing transaction data: $e');
           }
         }
 
+        // Konversi aggregatedData ke dalam list dan urutkan
         List<Map<String, dynamic>> laporanData = aggregatedData.values.toList();
+        laporanData.sort((a, b) => DateTime.parse(b['tanggal_transaksi'])
+            .compareTo(DateTime.parse(a['tanggal_transaksi'])));
+
         prefs.setString('laporanData', jsonEncode(laporanData));
 
         setState(() {
@@ -605,107 +760,30 @@ class _LaporanPageState extends State<LaporanPage> {
                                                             decimalDigits: 0,
                                                           );
 
-                                                          return Column(
-                                                            children: [
-                                                              Table(
-                                                                border:
-                                                                    TableBorder
-                                                                        .all(
-                                                                  color: Color(
-                                                                      0xff000000),
-                                                                  width: 1,
-                                                                ),
-                                                                columnWidths: dropdownValue ==
-                                                                            'Stok' ||
-                                                                        dropdownValue ==
-                                                                            'Terlaris'
-                                                                    ? {
-                                                                        0: FixedColumnWidth(width *
-                                                                            0.6),
-                                                                        1: FixedColumnWidth(width *
-                                                                            0.4),
-                                                                      }
-                                                                    : {
-                                                                        0: FixedColumnWidth(width *
-                                                                            0.35),
-                                                                        1: FixedColumnWidth(width *
-                                                                            0.25),
-                                                                        2: FixedColumnWidth(width *
-                                                                            0.4),
-                                                                      },
-                                                                children: [
-                                                                  TableRow(
-                                                                    children:
-                                                                        dropdownValue == 'Stok' ||
-                                                                                dropdownValue == 'Terlaris'
-                                                                            ? [
-                                                                                Container(
-                                                                                  alignment: Alignment.center,
-                                                                                  padding: EdgeInsets.fromLTRB(5, 3, 0, 3),
-                                                                                  child: Text(
-                                                                                    'Nama barang',
-                                                                                    style: TextStyle(
-                                                                                      fontWeight: FontWeight.bold,
-                                                                                      fontSize: 13,
-                                                                                      color: Color(0xff000000),
-                                                                                    ),
-                                                                                  ),
-                                                                                ),
-                                                                                Container(
-                                                                                  alignment: Alignment.center,
-                                                                                  padding: EdgeInsets.fromLTRB(3, 3, 0, 3),
-                                                                                  child: Text(
-                                                                                    dropdownValue == 'Stok' ? 'Stok' : 'Penjualan',
-                                                                                    style: TextStyle(
-                                                                                      fontWeight: FontWeight.bold,
-                                                                                      fontSize: 13,
-                                                                                      color: Color(0xff000000),
-                                                                                    ),
-                                                                                  ),
-                                                                                ),
-                                                                                Container(),
-                                                                              ]
-                                                                            : [
-                                                                                Container(
-                                                                                  alignment: Alignment.center,
-                                                                                  padding: EdgeInsets.fromLTRB(5, 3, 0, 3),
-                                                                                  child: Text(
-                                                                                    'Tanggal',
-                                                                                    style: TextStyle(
-                                                                                      fontWeight: FontWeight.bold,
-                                                                                      fontSize: 13,
-                                                                                      color: Color(0xff000000),
-                                                                                    ),
-                                                                                  ),
-                                                                                ),
-                                                                                Container(
-                                                                                  alignment: Alignment.center,
-                                                                                  padding: EdgeInsets.fromLTRB(3, 3, 0, 3),
-                                                                                  child: Text(
-                                                                                    'Transaksi',
-                                                                                    style: TextStyle(
-                                                                                      fontWeight: FontWeight.bold,
-                                                                                      fontSize: 13,
-                                                                                      color: Color(0xff000000),
-                                                                                    ),
-                                                                                  ),
-                                                                                ),
-                                                                                Container(
-                                                                                  alignment: Alignment.center,
-                                                                                  padding: EdgeInsets.fromLTRB(0, 3, 5, 3),
-                                                                                  child: Text(
-                                                                                    dropdownValue == 'Profit' ? 'Profit' : 'Omset',
-                                                                                    style: TextStyle(
-                                                                                      fontWeight: FontWeight.bold,
-                                                                                      fontSize: 13,
-                                                                                      color: Color(0xff000000),
-                                                                                    ),
-                                                                                  ),
-                                                                                ),
-                                                                              ],
+                                                          return SingleChildScrollView(
+                                                            child: Column(
+                                                              children: [
+                                                                Table(
+                                                                  border:
+                                                                      TableBorder
+                                                                          .all(
+                                                                    color: Color(
+                                                                        0xff000000),
+                                                                    width: 1,
                                                                   ),
-                                                                  for (var laporan
-                                                                      in laporanList)
+                                                                  columnWidths:
+                                                                      dropdownValue == 'Stok' ||
+                                                                              dropdownValue == 'Terlaris'
+                                                                          ? {
+                                                                              0: FixedColumnWidth(width * 0.6),
+                                                                              1: FixedColumnWidth(width * 0.4),
+                                                                            }
+                                                                          : {
+                                                                              0: FixedColumnWidth(width * 0.35),
+                                                                              1: FixedColumnWidth(width * 0.25),
+                                                                              2: FixedColumnWidth(width * 0.4),
+                                                                            },
+                                                                  children: [
                                                                     TableRow(
                                                                       children: dropdownValue == 'Stok' ||
                                                                               dropdownValue == 'Terlaris'
@@ -714,9 +792,9 @@ class _LaporanPageState extends State<LaporanPage> {
                                                                                 alignment: Alignment.center,
                                                                                 padding: EdgeInsets.fromLTRB(5, 3, 0, 3),
                                                                                 child: Text(
-                                                                                  laporan['nama_barang'] ?? '',
+                                                                                  'Nama barang',
                                                                                   style: TextStyle(
-                                                                                    fontWeight: FontWeight.w500,
+                                                                                    fontWeight: FontWeight.bold,
                                                                                     fontSize: 13,
                                                                                     color: Color(0xff000000),
                                                                                   ),
@@ -726,9 +804,9 @@ class _LaporanPageState extends State<LaporanPage> {
                                                                                 alignment: Alignment.center,
                                                                                 padding: EdgeInsets.fromLTRB(3, 3, 0, 3),
                                                                                 child: Text(
-                                                                                  dropdownValue == 'Stok' ? (_isChecked ? "${laporan['stok_limit'] ?? 0}" : "${laporan['stok'] ?? 0}") : "${laporan['total_penjualan'] ?? 0}",
+                                                                                  dropdownValue == 'Stok' ? 'Stok' : 'Penjualan',
                                                                                   style: TextStyle(
-                                                                                    fontWeight: FontWeight.w400,
+                                                                                    fontWeight: FontWeight.bold,
                                                                                     fontSize: 13,
                                                                                     color: Color(0xff000000),
                                                                                   ),
@@ -741,9 +819,9 @@ class _LaporanPageState extends State<LaporanPage> {
                                                                                 alignment: Alignment.center,
                                                                                 padding: EdgeInsets.fromLTRB(5, 3, 0, 3),
                                                                                 child: Text(
-                                                                                  laporan['tanggal_transaksi'] ?? '',
+                                                                                  'Tanggal',
                                                                                   style: TextStyle(
-                                                                                    fontWeight: FontWeight.w500,
+                                                                                    fontWeight: FontWeight.bold,
                                                                                     fontSize: 13,
                                                                                     color: Color(0xff000000),
                                                                                   ),
@@ -753,9 +831,9 @@ class _LaporanPageState extends State<LaporanPage> {
                                                                                 alignment: Alignment.center,
                                                                                 padding: EdgeInsets.fromLTRB(3, 3, 0, 3),
                                                                                 child: Text(
-                                                                                  dropdownValue == 'Profit' ? "${laporan['total_penjualan'] ?? 0}" : "${laporan['total_penjualan'] ?? 0}",
+                                                                                  'Transaksi',
                                                                                   style: TextStyle(
-                                                                                    fontWeight: FontWeight.w400,
+                                                                                    fontWeight: FontWeight.bold,
                                                                                     fontSize: 13,
                                                                                     color: Color(0xff000000),
                                                                                   ),
@@ -765,24 +843,96 @@ class _LaporanPageState extends State<LaporanPage> {
                                                                                 alignment: Alignment.center,
                                                                                 padding: EdgeInsets.fromLTRB(0, 3, 5, 3),
                                                                                 child: Text(
-                                                                                  dropdownValue == 'Profit' ? currencyFormatter.format(int.tryParse(laporan['profit']?.toString().replaceAll('.', '').replaceAll(',', '') ?? '0') ?? 0).replaceAll(',00', '') : currencyFormatter.format(int.tryParse(laporan['omset']?.toString().replaceAll('.', '').replaceAll(',', '') ?? '0') ?? 0).replaceAll(',00', ''),
+                                                                                  dropdownValue == 'Profit' ? 'Profit' : 'Omset',
                                                                                   style: TextStyle(
-                                                                                    fontWeight: FontWeight.w500,
-                                                                                    fontSize: 11,
+                                                                                    fontWeight: FontWeight.bold,
+                                                                                    fontSize: 13,
                                                                                     color: Color(0xff000000),
                                                                                   ),
                                                                                 ),
                                                                               ),
                                                                             ],
                                                                     ),
-                                                                ],
-                                                              ),
-                                                            ],
+                                                                    for (var laporan
+                                                                        in laporanList)
+                                                                      TableRow(
+                                                                        children: dropdownValue == 'Stok' ||
+                                                                                dropdownValue == 'Terlaris'
+                                                                            ? [
+                                                                                Container(
+                                                                                  alignment: Alignment.center,
+                                                                                  padding: EdgeInsets.fromLTRB(5, 3, 0, 3),
+                                                                                  child: Text(
+                                                                                    laporan['nama_barang'] ?? '',
+                                                                                    style: TextStyle(
+                                                                                      fontWeight: FontWeight.w500,
+                                                                                      fontSize: 13,
+                                                                                      color: Color(0xff000000),
+                                                                                    ),
+                                                                                  ),
+                                                                                ),
+                                                                                Container(
+                                                                                  alignment: Alignment.center,
+                                                                                  padding: EdgeInsets.fromLTRB(3, 3, 0, 3),
+                                                                                  child: Text(
+                                                                                    dropdownValue == 'Stok' ? (_isChecked ? "${laporan['stok_limit'] ?? 0}" : "${laporan['stok']}") : "${laporan['jumlah_terjual'] ?? 0}",
+                                                                                    style: TextStyle(
+                                                                                      fontWeight: FontWeight.w400,
+                                                                                      fontSize: 13,
+                                                                                      color: Color(0xff000000),
+                                                                                    ),
+                                                                                  ),
+                                                                                ),
+                                                                                Container(),
+                                                                              ]
+                                                                            : [
+                                                                                Container(
+                                                                                  alignment: Alignment.center,
+                                                                                  padding: EdgeInsets.fromLTRB(5, 3, 0, 3),
+                                                                                  child: Text(
+                                                                                    laporan['tanggal_transaksi'] ?? '',
+                                                                                    style: TextStyle(
+                                                                                      fontWeight: FontWeight.w500,
+                                                                                      fontSize: 13,
+                                                                                      color: Color(0xff000000),
+                                                                                    ),
+                                                                                  ),
+                                                                                ),
+                                                                                Container(
+                                                                                  alignment: Alignment.center,
+                                                                                  padding: EdgeInsets.fromLTRB(3, 3, 0, 3),
+                                                                                  child: Text(
+                                                                                    "${laporan['total_penjualan'] ?? 0}",
+                                                                                    style: TextStyle(
+                                                                                      fontWeight: FontWeight.w400,
+                                                                                      fontSize: 13,
+                                                                                      color: Color(0xff000000),
+                                                                                    ),
+                                                                                  ),
+                                                                                ),
+                                                                                Container(
+                                                                                  alignment: Alignment.center,
+                                                                                  padding: EdgeInsets.fromLTRB(0, 3, 5, 3),
+                                                                                  child: Text(
+                                                                                    dropdownValue == 'Profit' ? currencyFormatter.format(int.tryParse(laporan['profit']?.toString().replaceAll('.0000', '').replaceAll(',', '') ?? '0') ?? 0) : currencyFormatter.format(double.tryParse(laporan['omset']?.toString() ?? '0') ?? 0),
+                                                                                    style: TextStyle(
+                                                                                      fontWeight: FontWeight.w500,
+                                                                                      fontSize: 11,
+                                                                                      color: Color(0xff000000),
+                                                                                    ),
+                                                                                  ),
+                                                                                ),
+                                                                              ],
+                                                                      ),
+                                                                  ],
+                                                                ),
+                                                              ],
+                                                            ),
                                                           );
                                                         },
                                                       ),
                                                     )
- ],
+                                        ],
                                       ),
                                     ),
                         ],

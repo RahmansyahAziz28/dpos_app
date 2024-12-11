@@ -103,6 +103,209 @@ class _HistoryPageState extends State<HistoryPage> {
   }
 
   bool isLoading = false;
+  // Future<void> fetchdata() async {
+  //   setState(() {
+  //     isLoading = true;
+  //   });
+
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   String? token = prefs.getString('token');
+  //   List<String>? dataLocal = prefs.getStringList('local_permanent');
+
+  //   String date1Formatted = DateFormat('yyyy-MM-dd').format(
+  //     DateFormat('dd-MM-yyyy').parse(_dateController1.text),
+  //   );
+  //   String date2Formatted = DateFormat('yyyy-MM-dd').format(
+  //     DateFormat('dd-MM-yyyy').parse(_dateController2.text),
+  //   );
+  //   String kategori;
+  //   if (dropdownValue == 'Pembelian') {
+  //     kategori = 'Pengeluaran';
+  //   } else if (dropdownValue == 'Penjualan') {
+  //     kategori = 'Pemasukan';
+  //   } else {
+  //     kategori = dropdownValue;
+  //   }
+  //   bool isConnected = await _checkInternetConnection();
+  //   print('Internet connected: $isConnected');
+
+  //   if (isConnected) {
+  //     try {
+  //       final response = await http.get(
+  //         Uri.parse(
+  //           'https://dposlite.my.id/api/getransaksi?tanggal_awal=$date1Formatted&tanggal_akhir=$date2Formatted&kategori=$kategori',
+  //         ),
+  //         headers: {
+  //           'Accept': 'application/json',
+  //           'Authorization': 'Bearer $token',
+  //         },
+  //       );
+
+  //       if (response.statusCode == 200) {
+  //         var data = jsonDecode(response.body);
+
+  //         if (data is Map<String, dynamic> && data.containsKey('data')) {
+  //           var listData = data['data'];
+  //           if (listData is List) {
+  //             print("Data from API: $listData");
+
+  //             setState(() {
+  //               historylist = listData.where((item) => item != null).toList();
+  //               isLoading = false;
+  //             });
+  //           } else {
+  //             print(
+  //                 'Expected a List under key "data" but got: ${listData.runtimeType}');
+  //             setState(() {
+  //               historylist = [];
+  //               isLoading = false;
+  //             });
+  //           }
+  //         } else {
+  //           print(
+  //               'Expected a Map with key "data" but got: ${data.runtimeType}');
+  //           setState(() {
+  //             historylist = [];
+  //             isLoading = false;
+  //           });
+  //         }
+  //       } else {
+  //         print('Error: ${response.statusCode}');
+  //         if (dataLocal != null && dataLocal.isNotEmpty) {
+  //           try {
+  //             List<Map<String, dynamic>> localTransactions = [];
+
+  //             for (var transactionJson in dataLocal) {
+  //               try {
+  //                 var decoded = jsonDecode(transactionJson);
+  //                 if (decoded is Map<String, dynamic>) {
+  //                   localTransactions.add(decoded);
+  //                 } else {
+  //                   print('Skipped invalid JSON data: $transactionJson');
+  //                 }
+  //               } catch (e) {
+  //                 print('Error decoding JSON: $transactionJson - $e');
+  //               }
+  //             }
+
+  //             print('Local transactions before filtering: $localTransactions');
+
+  //             SharedPreferences prefs = await SharedPreferences.getInstance();
+  //             int? user_id = prefs.getInt('user_id');
+
+  //             List<Map<String, dynamic>> filteredLocalTransactions =
+  //                 localTransactions.where((transaction) {
+  //               String transactionDate =
+  //                   transaction['tanggal_transaksi'].substring(0, 10);
+  //               bool dateInRange =
+  //                   transactionDate.compareTo(date1Formatted) >= 0 &&
+  //                       transactionDate.compareTo(date2Formatted) <= 0;
+
+  //               bool userIdMatches = transaction['user_id'] == user_id;
+
+  //               bool categoryMatches = kategori == null ||
+  //                   transaction['kategori'].toLowerCase() ==
+  //                       kategori.toLowerCase();
+
+  //               print("Transaction date: $transactionDate");
+  //               print("Date in range: $dateInRange");
+  //               print("User ID matches: $userIdMatches");
+  //               print("Category matches: $categoryMatches");
+
+  //               return dateInRange && userIdMatches && categoryMatches;
+  //             }).toList();
+
+  //             print('Filtered local transactions: $filteredLocalTransactions');
+
+  //             setState(() {
+  //               historylist = filteredLocalTransactions;
+  //               isLoading = false;
+  //             });
+  //           } catch (e) {
+  //             print("Error processing local transactions: $e");
+  //             setState(() {
+  //               isLoading = false;
+  //             });
+  //           }
+  //         } else {
+  //           setState(() {
+  //             isLoading = false;
+  //             historylist = [];
+  //           });
+  //         }
+  //         // setState(() {
+  //         //   isLoading = false;
+  //         // });
+  //       }
+  //     } catch (error) {
+  //       print('Error fetching data: $error');
+  //       setState(() {
+  //         isLoading = false;
+  //       });
+  //     }
+  //   } else {
+  //     if (dataLocal != null && dataLocal.isNotEmpty) {
+  //       try {
+  //         List<Map<String, dynamic>> localTransactions = [];
+
+  //         for (var transactionJson in dataLocal) {
+  //           try {
+  //             var decoded = jsonDecode(transactionJson);
+  //             if (decoded is Map<String, dynamic>) {
+  //               localTransactions.add(decoded);
+  //             } else {
+  //               print('Skipped invalid JSON data: $transactionJson');
+  //             }
+  //           } catch (e) {
+  //             print('Error decoding JSON: $transactionJson - $e');
+  //           }
+  //         }
+
+  //         print('Local transactions before filtering: $localTransactions');
+
+  //         SharedPreferences prefs = await SharedPreferences.getInstance();
+  //         int? user_id = prefs.getInt('user_id');
+
+  //         List<Map<String, dynamic>> filteredLocalTransactions =
+  //             localTransactions.where((transaction) {
+  //           String transactionDate =
+  //               transaction['tanggal_transaksi'].substring(0, 10);
+  //           bool dateInRange = transactionDate.compareTo(date1Formatted) >= 0 &&
+  //               transactionDate.compareTo(date2Formatted) <= 0;
+
+  //           bool userIdMatches = transaction['user_id'] == user_id;
+
+  //           bool categoryMatches = kategori == null ||
+  //               transaction['kategori'].toLowerCase() == kategori.toLowerCase();
+
+  //           print("Transaction date: $transactionDate");
+  //           print("Date in range: $dateInRange");
+  //           print("User ID matches: $userIdMatches");
+  //           print("Category matches: $categoryMatches");
+
+  //           return dateInRange && userIdMatches && categoryMatches;
+  //         }).toList();
+
+  //         print('Filtered local transactions: $filteredLocalTransactions');
+
+  //         setState(() {
+  //           historylist = filteredLocalTransactions;
+  //           isLoading = false;
+  //         });
+  //       } catch (e) {
+  //         print("Error processing local transactions: $e");
+  //         setState(() {
+  //           isLoading = false;
+  //         });
+  //       }
+  //     } else {
+  //       setState(() {
+  //         isLoading = false;
+  //         historylist = [];
+  //       });
+  //     }
+  //   }
+  // }
   Future<void> fetchdata() async {
     setState(() {
       isLoading = true;
@@ -118,23 +321,23 @@ class _HistoryPageState extends State<HistoryPage> {
     String date2Formatted = DateFormat('yyyy-MM-dd').format(
       DateFormat('dd-MM-yyyy').parse(_dateController2.text),
     );
+
     String kategori;
     if (dropdownValue == 'Pembelian') {
       kategori = 'Pengeluaran';
     } else if (dropdownValue == 'Penjualan') {
       kategori = 'Pemasukan';
     } else {
-      kategori =
-          dropdownValue;
+      kategori = dropdownValue;
     }
+
     bool isConnected = await _checkInternetConnection();
-    print('Internet connected: $isConnected');
 
     if (isConnected) {
       try {
         final response = await http.get(
           Uri.parse(
-            'https://flea-vast-sadly.ngrok-free.app/api/getransaksi?tanggal_awal=$date1Formatted&tanggal_akhir=$date2Formatted&kategori=$kategori',
+            'https://dposlite.my.id/api/getransaksi?tanggal_awal=$date1Formatted&tanggal_akhir=$date2Formatted&kategori=$kategori',
           ),
           headers: {
             'Accept': 'application/json',
@@ -148,89 +351,69 @@ class _HistoryPageState extends State<HistoryPage> {
           if (data is Map<String, dynamic> && data.containsKey('data')) {
             var listData = data['data'];
             if (listData is List) {
-              print("Data from API: $listData");
+              listData.sort((a, b) {
+                DateTime dateA = DateTime.parse(a['tanggal_transaksi']);
+                DateTime dateB = DateTime.parse(b['tanggal_transaksi']);
+                return dateB.compareTo(dateA);
+              });
 
               setState(() {
-                historylist = listData.where((item) => item != null).toList();
-                isLoading = false;
-              });
-            } else {
-              print(
-                  'Expected a List under key "data" but got: ${listData.runtimeType}');
-              setState(() {
-                historylist = [];
+                historylist = listData;
                 isLoading = false;
               });
             }
-          } else {
-            print(
-                'Expected a Map with key "data" but got: ${data.runtimeType}');
-            setState(() {
-              historylist = [];
-              isLoading = false;
-            });
           }
-        } else {
-          print('Error: ${response.statusCode}');
-          setState(() {
-            isLoading = false;
-          });
         }
       } catch (error) {
-        print('Error fetching data: $error');
         setState(() {
           isLoading = false;
         });
       }
     } else {
       if (dataLocal != null && dataLocal.isNotEmpty) {
-        try {
-          List<Map<String, dynamic>> localTransactions = [];
+        List<Map<String, dynamic>> localTransactions = [];
 
-          for (var transactionJson in dataLocal) {
-            try {
-              var decoded = jsonDecode(transactionJson);
-              if (decoded is Map<String, dynamic>) {
-                localTransactions.add(decoded);
-              } else {
-                print('Skipped invalid JSON data: $transactionJson');
-              }
-            } catch (e) {
-              print('Error decoding JSON: $transactionJson - $e');
+        for (var transactionJson in dataLocal) {
+          try {
+            var decoded = jsonDecode(transactionJson);
+            if (decoded is Map<String, dynamic>) {
+              localTransactions.add(decoded);
             }
+          } catch (e) {
+            print('Error decoding JSON: $transactionJson - $e');
           }
-
-          print('Local transactions before filtering: $localTransactions');
-
-          List<Map<String, dynamic>> filteredLocalTransactions =
-              localTransactions.where((transaction) {
-            String transactionDate =
-                transaction['tanggal_transaksi'].substring(0, 10);
-            bool dateInRange = transactionDate.compareTo(date1Formatted) >= 0 &&
-                transactionDate.compareTo(date2Formatted) <= 0;
-            bool categoryMatches = kategori == null ||
-                transaction['kategori'].toLowerCase() ==
-                    kategori.toLowerCase();
-
-            print("Transaction date: $transactionDate");
-            print("Date in range: $dateInRange");
-            print("Category matches: $categoryMatches");
-
-            return dateInRange && categoryMatches;
-          }).toList();
-
-          print('Filtered local transactions: $filteredLocalTransactions');
-
-          setState(() {
-            historylist = filteredLocalTransactions;
-            isLoading = false;
-          });
-        } catch (e) {
-          print("Error processing local transactions: $e");
-          setState(() {
-            isLoading = false;
-          });
         }
+
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        int? user_id = prefs.getInt('user_id');
+
+        List<Map<String, dynamic>> filteredLocalTransactions =
+            localTransactions.where((transaction) {
+          String transactionDate =
+              transaction['tanggal_transaksi'].substring(0, 10);
+          bool dateInRange = (transactionDate == date1Formatted &&
+                  transactionDate == date2Formatted) ||
+              (transactionDate.compareTo(date1Formatted) >= 0 &&
+                  transactionDate.compareTo(date2Formatted) <= 0);
+
+          bool userIdMatches = transaction['user_id'] == user_id;
+
+          bool categoryMatches = kategori.isEmpty ||
+              transaction['kategori'].toLowerCase() == kategori.toLowerCase();
+
+          return dateInRange && userIdMatches && categoryMatches;
+        }).toList();
+
+        filteredLocalTransactions.sort((a, b) {
+          DateTime dateA = DateTime.parse(a['tanggal_transaksi']);
+          DateTime dateB = DateTime.parse(b['tanggal_transaksi']);
+          return dateB.compareTo(dateA);
+        });
+
+        setState(() {
+          historylist = filteredLocalTransactions;
+          isLoading = false;
+        });
       } else {
         setState(() {
           isLoading = false;
@@ -481,35 +664,35 @@ class _HistoryPageState extends State<HistoryPage> {
 
                                       final currencyFormat =
                                           NumberFormat.currency(
-                                              locale: 'id_ID',
-                                              symbol: '',
-                                              decimalDigits: 0);
+                                        locale: 'id_ID',
+                                        symbol: '',
+                                        decimalDigits: 0,
+                                      );
 
                                       String tanggalTransaksi =
                                           transaction['tanggal_transaksi'];
-                                      String formattedDate =
-                                          tanggalTransaksi.replaceAll('T', ' ');
+                                      String formattedDate = tanggalTransaksi
+                                          .replaceAll('T00:00:00.000000Z', '');
 
-                                      // Parse and format values safely
-                                      int totalHarga = int.tryParse(
-                                              transaction['total_harga']
-                                                  .toString()
-                                                  .replaceAll('.', '')) ??
+                                      int totalHarga = double.tryParse(
+                                                  transaction['total_harga']
+                                                      .toString())
+                                              ?.toInt() ??
                                           0;
-                                      int potongan = int.tryParse(
-                                              transaction['potongan']
-                                                  .toString()
-                                                  .replaceAll('.', '')) ??
+                                      int potongan = double.tryParse(
+                                                  transaction['potongan']
+                                                      .toString())
+                                              ?.toInt() ??
                                           0;
-                                      int jumlahDibayar = int.tryParse(
-                                              transaction['jumlah_dibayar']
-                                                  .toString()
-                                                  .replaceAll('.', '')) ??
+                                      int jumlahDibayar = double.tryParse(
+                                                  transaction['jumlah_dibayar']
+                                                      .toString())
+                                              ?.toInt() ??
                                           0;
-                                      int kembalian = int.tryParse(
-                                              transaction['kembalian']
-                                                  .toString()
-                                                  .replaceAll('.', '')) ??
+                                      int kembalian = double.tryParse(
+                                                  transaction['kembalian']
+                                                      .toString())
+                                              ?.toInt() ??
                                           0;
 
                                       return Padding(
@@ -581,20 +764,26 @@ class _HistoryPageState extends State<HistoryPage> {
                                                             entry.key + 1;
                                                         var item = entry.value;
 
-                                                        int jumlah =
-                                                            int.tryParse(item[
+                                                        double jumlah = double
+                                                                .tryParse(item[
                                                                         'jumlah']
                                                                     .toString()) ??
-                                                                0;
+                                                            0;
+
                                                         int hargaSatuan =
-                                                            int.tryParse(item[
-                                                                        'harga_satuan']
-                                                                    .toString()
-                                                                    .replaceAll(
-                                                                        '.',
-                                                                        '')) ??
+                                                            double.tryParse(item[
+                                                                            'harga_satuan']
+                                                                        .toString())
+                                                                    ?.toInt() ??
                                                                 0;
-                                                        int totalHargaItem =
+
+                                                        String formattedString = jumlah
+                                                                .toString()
+                                                                .startsWith('0')
+                                                            ? "${(item['jumlah'])} x ${currencyFormat.format(hargaSatuan)}"
+                                                            : "${(item['jumlah'])} x ${currencyFormat.format(hargaSatuan)}";
+
+                                                        double totalHargaItem =
                                                             jumlah *
                                                                 hargaSatuan;
 
@@ -634,7 +823,7 @@ class _HistoryPageState extends State<HistoryPage> {
                                                                           .spaceBetween,
                                                                   children: [
                                                                     Text(
-                                                                      "${currencyFormat.format(jumlah)} x ${currencyFormat.format(hargaSatuan)}",
+                                                                      formattedString,
                                                                       style:
                                                                           TextStyle(
                                                                         fontWeight:
@@ -790,8 +979,7 @@ class _HistoryPageState extends State<HistoryPage> {
                                           ),
                                         ),
                                       );
-                                    },
-                                  ))
+                                    }))
                   ],
                 ),
               ),

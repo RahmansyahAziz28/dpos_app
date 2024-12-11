@@ -15,6 +15,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => Size.fromHeight(kToolbarHeight);
 
+  Future<String?> getUsername() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('username');
+  }
+
   @override
   Widget build(BuildContext context) {
     return AppBar(
@@ -37,6 +42,41 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           color: Color(0xff000000),
         ),
       ),
+      actions: [
+        FutureBuilder<String?>(
+          future: getUsername(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Padding(
+                padding: EdgeInsets.only(right: 16.0),
+                child: CircularProgressIndicator(color: Colors.white),
+              );
+            } else if (snapshot.hasData && snapshot.data != null) {
+              return Padding(
+                padding: EdgeInsets.only(right: 16.0),
+                child: Text(
+                  snapshot.data!,
+                  style: TextStyle(
+                    fontSize: 22,
+                    color: const Color.fromARGB(255, 0, 0, 0),
+                  ),
+                ),
+              );
+            } else {
+              return Padding(
+                padding: EdgeInsets.only(right: 16.0),
+                child: Text(
+                  'Guest',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                  ),
+                ),
+              );
+            }
+          },
+        ),
+      ],
       leading: GestureDetector(
         onTap: () {
           if (removeSuggestionsOverlay != null) {

@@ -83,6 +83,7 @@ class _KonfirmasiPageState extends State<KonfirmasiPage> {
     print("local: ${localTransactions}");
 
     List<String> localPermanent = prefs.getStringList('local_permanent') ?? [];
+    int? user_id = prefs.getInt('user_id');
     bool isOnline = await _checkInternetConnection();
 
     List<Map<String, dynamic>> items = [];
@@ -103,8 +104,9 @@ class _KonfirmasiPageState extends State<KonfirmasiPage> {
       }
 
       items.add({
-        'jumlah':
-            (int.tryParse(widget.jumlahbarang[i].replaceAll('.', ''))) ?? 0,
+       'jumlah': widget.jumlahbarang[i].length > 4
+            ? (int.tryParse(widget.jumlahbarang[i].replaceAll('.', '')) ?? 0)
+            : widget.jumlahbarang[i],
         'harga_satuan':
             (int.tryParse(widget.hargaSatuan[i].replaceAll('.', '')) ?? 0)
                 .toString(),
@@ -152,8 +154,25 @@ class _KonfirmasiPageState extends State<KonfirmasiPage> {
           (item['id'].toString()): item
       };
 
-      for (var item in databarang) {
-        if (!existingDatabarangMap.containsKey(item['id'].toString())) {
+      // for (var item in databarang) {
+      //   if (!existingDatabarangMap.containsKey(item['id'].toString())) {
+      //     decodedExistingDatabarang.add(item);
+      //   }
+      // }
+       for (var item in databarang) {
+        if (existingDatabarangMap.containsKey(item['id'].toString())) {
+          var existingItem = existingDatabarangMap[item['id'].toString()];
+
+          if (existingItem!['harga_pokok'].toString().isEmpty &&
+              item['harga_pokok'].toString().isNotEmpty) {
+            existingItem['harga_pokok'] = item['harga_pokok'];
+          }
+
+          if (existingItem!['harga_jual'].toString().isEmpty &&
+              item['harga_jual'].toString().isNotEmpty) {
+            existingItem['harga_jual'] = item['harga_jual'];
+          }
+        } else {
           decodedExistingDatabarang.add(item);
         }
       }
@@ -162,8 +181,10 @@ class _KonfirmasiPageState extends State<KonfirmasiPage> {
       await prefs.setString('databarang', updatedDatabarang);
     }
 
+    
     final currentTransactionDataLocal = {
       'kode_transaksi': widget.kodetransaksi.toString(),
+      'user_id': user_id,
       'tanggal_transaksi': widget.date.toString(),
       'total_harga': widget.totalall.toString(),
       'potongan': widget.potongan.toString(),
@@ -182,6 +203,7 @@ class _KonfirmasiPageState extends State<KonfirmasiPage> {
           (int.tryParse(widget.potongan.replaceAll('.', '')) ?? 0).toString(),
       'jumlah_dibayar': (int.tryParse(widget.bayar.replaceAll('.', '')) ?? 0),
       'kembalian':
+
           (int.tryParse(widget.kembalian!.replaceAll('.', '')) ?? 0).toString(),
       'kategori': widget.Kategori.toString(),
       'items': items,
@@ -246,12 +268,12 @@ class _KonfirmasiPageState extends State<KonfirmasiPage> {
   }
 
   Future<void> postTransactionToAPI(String transactionsAsString) async {
-    final sanitizedString = transactionsAsString.replaceAll(RegExp(r'\.'), '');
+    // final sanitizedString = transactionsAsString.replaceAll(RegExp(r'\'), '');
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
-    print("Send to Api: ${sanitizedString}");
-    final url = 'https://flea-vast-sadly.ngrok-free.app/api/transaksi';
+    print("Send to Api: ${transactionsAsString}");
+    final url = 'https://dposlite.my.id/api/transaksi';
     final headers = {
       'accept': "application/json",
       'Content-Type': 'application/json',
@@ -262,7 +284,7 @@ class _KonfirmasiPageState extends State<KonfirmasiPage> {
       final response = await http.post(
         Uri.parse(url),
         headers: headers,
-        body: sanitizedString,
+        body: transactionsAsString,
       );
 
       if (response.statusCode == 201) {

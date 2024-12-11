@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'package:dpos/component/Rupiahformatter.dart';
+import 'package:dpos/component/jumlahformatter.dart';
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
 
@@ -35,7 +36,7 @@ class TransactionCodeGenerator {
     String formattedDate = DateFormat('MM').format(now);
     String uuid = _uuid.v4();
 
-    String transactionCode = 'B-${formattedDate}${uuid.substring(0, 5)}';
+    String transactionCode = 'B-${formattedDate}${uuid.substring(0, 6)}';
 
     return transactionCode;
   }
@@ -66,9 +67,9 @@ class _PengeluaranPageState extends State<PengeluaranPage> {
   bool showSuggestions = false;
   bool istype = false;
 
-  int totalall = 0;
-  int totalbersih = 0;
-  int kembalian = 0;
+  double totalall = 0;
+  double totalbersih = 0;
+  double kembalian = 0;
 
   late TextEditingController caricontroller = TextEditingController();
   late TextEditingController barucontroller = TextEditingController();
@@ -96,6 +97,7 @@ class _PengeluaranPageState extends State<PengeluaranPage> {
 
   void hapusCard(int index) {
     setState(() {
+      idList.removeAt(index);
       barangControllers.removeAt(index);
       jumlahControllers.removeAt(index);
       hargaSatuanControllers.removeAt(index);
@@ -129,10 +131,10 @@ class _PengeluaranPageState extends State<PengeluaranPage> {
 
     bool isConnected = await _checkInternetConnection();
 
-    if (isConnected) {
+    if (isConnected != false) {
       try {
         final response = await http.get(
-          Uri.parse('https://flea-vast-sadly.ngrok-free.app/api/getbarang'),
+          Uri.parse('https://dposlite.my.id/api/getbarang'),
           headers: {
             'Accept': 'application/json',
             'Authorization': 'Bearer $token',
@@ -176,9 +178,9 @@ class _PengeluaranPageState extends State<PengeluaranPage> {
           });
         }
       } catch (error) {
-        setState(() {
-          isLoading = false;
-        });
+        // setState(() {
+        //   isLoading = false;
+        // });
         print('Exception: $error');
       }
     } else {
@@ -259,22 +261,30 @@ class _PengeluaranPageState extends State<PengeluaranPage> {
   }
 
   void hitungTotal() {
-    int potongan =
-        int.tryParse(potongancontroller.text.replaceAll('.', '')) ?? 0;
-    int bayar = int.tryParse(bayarcontroller.text.replaceAll('.', '')) ?? 0;
+    double potongan = double.tryParse(
+            potongancontroller.text.replaceAll('.', '').replaceAll(',', '.')) ??
+        0;
+    double bayar = double.tryParse(
+            bayarcontroller.text.replaceAll('.', '').replaceAll(',', '.')) ??
+        0;
 
-    int totalHarga = 0;
+    double totalHarga = 0;
 
     for (int i = 0; i < jumlahControllers.length; i++) {
-      int jumlah =
-          int.tryParse(jumlahControllers[i].text.replaceAll('.', '')) ?? 0;
-      int hargaSatuan =
-          int.tryParse(hargaSatuanControllers[i].text.replaceAll('.', '')) ?? 0;
+      double jumlah = double.tryParse(jumlahControllers[i]
+              .text
+              .replaceAll('.', '.')
+              .replaceAll(',', '.')) ??
+          0;
+      double hargaSatuan = double.tryParse(hargaSatuanControllers[i]
+              .text
+              .replaceAll('.', '')
+              .replaceAll(',', '.')) ??
+          0;
 
-      int hargaTotal = jumlah * hargaSatuan;
-      hargaTotalControllers[i].text =
-          numberFormat.format(hargaTotal); // Format harga total
-
+      double hargaTotal = jumlah * hargaSatuan;
+      hargaTotalControllers[i].text = numberFormat.format(hargaTotal);
+      print(jumlah);
       totalHarga += hargaTotal;
     }
 
@@ -318,11 +328,11 @@ class _PengeluaranPageState extends State<PengeluaranPage> {
       return;
     }
 
-    int totalSetelahPotongan = totalHarga - potongan;
+    double totalSetelahPotongan = totalHarga - potongan;
 
     totalcontroller.text = numberFormat.format(totalSetelahPotongan);
 
-    int kembalianValue = bayar - totalSetelahPotongan;
+    double kembalianValue = bayar - totalSetelahPotongan;
     kembalian = (kembalianValue > 0) ? kembalianValue : 0;
 
     setState(() {
@@ -331,6 +341,20 @@ class _PengeluaranPageState extends State<PengeluaranPage> {
       totalcontroller.text = numberFormat.format(totalSetelahPotongan);
       formattedTotalBersih = numberFormat.format(totalbersih);
     });
+  }
+
+  List<TextInputFormatter> getInputFormatters(String initialInput) {
+    if (initialInput.startsWith('0') || initialInput.isEmpty) {
+      return [
+        FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*\.?[0-9]*$')),
+        CustomRupiahFormatter(),
+      ];
+    } else {
+      return [
+        FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*\.?[0-9]*$')),
+        RupiahFormatter(),
+      ];
+    }
   }
 
   void tambahCard(String namaBarang, String hargaJual, {int? idBarang}) {
@@ -917,9 +941,10 @@ class _PengeluaranPageState extends State<PengeluaranPage> {
                                                                   index],
                                                           keyboardType:
                                                               TextInputType
-                                                                  .number,
-                                                          enableInteractiveSelection:
-                                                              false,
+                                                                  .numberWithOptions(
+                                                                      decimal:
+                                                                          true),
+                                                          
                                                           obscureText: false,
                                                           textAlign:
                                                               TextAlign.right,
@@ -990,12 +1015,19 @@ class _PengeluaranPageState extends State<PengeluaranPage> {
                                                                         horizontal:
                                                                             12),
                                                           ),
-                                                          inputFormatters: [
-                                                            FilteringTextInputFormatter
-                                                                .allow(RegExp(
-                                                                    r'[0-9.]')),
-                                                            RupiahFormatter()
-                                                          ],
+                                                          inputFormatters:
+                                                          //  getInputFormatters(jumlahControllers[index].text),
+                                                          // jumlahControllers[index]
+                                                          //         .text
+                                                          //         .startsWith(
+                                                          //             "0.")
+                                                          //     ? [
+                                                                  [CustomRupiahFormatter()],
+                                                          //       ]
+                                                          //     : [
+                                                          //         RupiahFormatter()
+                                                          //       ],
+
                                                           cursorColor:
                                                               cursorColor,
                                                           onSubmitted: (value) {
@@ -1012,7 +1044,7 @@ class _PengeluaranPageState extends State<PengeluaranPage> {
                                                           onChanged: (value) =>
                                                               hitungTotal(),
                                                         ),
-                                                      ),
+                                                    ),
                                                     ),
                                                     Expanded(
                                                       flex: 1,
@@ -1879,7 +1911,7 @@ class _PengeluaranPageState extends State<PengeluaranPage> {
                             actions: [
                               Row(
                                 mainAxisAlignment: MainAxisAlignment
-                                    .spaceBetween, // Align buttons to the sides
+                                    .spaceBetween,
                                 children: [
                                   TextButton(
                                     child: Text(

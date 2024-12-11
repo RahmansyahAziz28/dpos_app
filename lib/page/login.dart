@@ -51,14 +51,14 @@ class _SimpleLoginPageState extends State<SimpleLoginPage> {
 
     if (name.isEmpty) {
       setState(() {
-        responseMessage = "Silahkan isi Username terlebih dahulu";
+        responseMessage = "silahkan isi username terlebih dahulu, atau untuk coba dulu gunakan username = trial";
         isLoading = false;
         loadingText = 'Login';
       });
       return;
     }
 
-    String url = 'https://flea-vast-sadly.ngrok-free.app/api/login';
+    String url = 'https://dposlite.my.id/api/login';
 
     try {
       final response = await http.post(
@@ -78,6 +78,7 @@ class _SimpleLoginPageState extends State<SimpleLoginPage> {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         String token = data['token'];
         await prefs.setString('token', token);
+        await prefs.setString('username', nameController.text);
         await prefs.setInt('user_id', user_id);
         setState(() {
           responseMessage = 'Login Berhasil';
@@ -91,14 +92,14 @@ class _SimpleLoginPageState extends State<SimpleLoginPage> {
         );
       } else if (response.statusCode == 404) {
         setState(() {
-          responseMessage = 'Username tidak ditemukan';
+          responseMessage = 'Username tidak ditemukan, atau untuk coba dulu gunakan username = trial';
           isLoginSuccess = false;
           isLoading = false;
           loadingText = 'Login';
         });
       } else {
         setState(() {
-          responseMessage = 'Username tidak ditemukan';
+          responseMessage = 'Username tidak ditemukan, atau untuk coba dulu gunakan username = trial';
           isLoginSuccess = false;
           isLoading = false;
           loadingText = 'Login';

@@ -37,7 +37,6 @@ class PrinterManager {
         });
       } catch (e) {
         print("Connection error: $e");
-        // Handle the connection error here, maybe show a message to the user
       }
     } else {
       print("No device selected");

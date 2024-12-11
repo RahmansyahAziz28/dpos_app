@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'package:dpos/component/Rupiahformatter.dart';
+import 'package:dpos/component/jumlahformatter.dart';
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
 
@@ -35,7 +36,7 @@ class TransactionCodeGenerator {
     String formattedDate = DateFormat('MM').format(now);
     String uuid = _uuid.v4();
 
-    String transactionCode = 'J-${formattedDate}${uuid.substring(0, 5)}';
+    String transactionCode = 'J-${formattedDate}${uuid.substring(0, 6)}';
 
     return transactionCode;
   }
@@ -66,9 +67,9 @@ class _PemasukanPageState extends State<PemasukanPage> {
   bool showSuggestions = false;
   bool istype = false;
 
-  int totalall = 0;
-  int totalbersih = 0;
-  int kembalian = 0;
+  double totalall = 0;
+  double totalbersih = 0;
+  double kembalian = 0;
 
   late TextEditingController caricontroller = TextEditingController();
   late TextEditingController barucontroller = TextEditingController();
@@ -129,10 +130,10 @@ class _PemasukanPageState extends State<PemasukanPage> {
 
     bool isConnected = await _checkInternetConnection();
 
-    if (isConnected) {
+    if (isConnected != false) {
       try {
         final response = await http.get(
-          Uri.parse('https://flea-vast-sadly.ngrok-free.app/api/getbarang'),
+          Uri.parse('https://dposlite.my.id/api/getbarang'),
           headers: {
             'Accept': 'application/json',
             'Authorization': 'Bearer $token',
@@ -196,7 +197,7 @@ class _PemasukanPageState extends State<PemasukanPage> {
                     .replaceAll('.00', ''),
               };
             }
-            return {' arang': 'Invalid item', 'harga_jual': '0'};
+            return {'nama_barang': 'Invalid item', 'harga_jual': '0'};
           }).toList();
           isLoading = false;
         });
@@ -259,22 +260,30 @@ class _PemasukanPageState extends State<PemasukanPage> {
   }
 
   void hitungTotal() {
-    int potongan =
-        int.tryParse(potongancontroller.text.replaceAll('.', '')) ?? 0;
-    int bayar = int.tryParse(bayarcontroller.text.replaceAll('.', '')) ?? 0;
+    double potongan = double.tryParse(
+            potongancontroller.text.replaceAll('.', '').replaceAll(',', '.')) ??
+        0;
+    double bayar = double.tryParse(
+            bayarcontroller.text.replaceAll('.', '').replaceAll(',', '.')) ??
+        0;
 
-    int totalHarga = 0;
+    double totalHarga = 0;
 
     for (int i = 0; i < jumlahControllers.length; i++) {
-      int jumlah =
-          int.tryParse(jumlahControllers[i].text.replaceAll('.', '')) ?? 0;
-      int hargaSatuan =
-          int.tryParse(hargaSatuanControllers[i].text.replaceAll('.', '')) ?? 0;
+      double jumlah = double.tryParse(jumlahControllers[i]
+              .text
+              .replaceAll('', '')
+              .replaceAll(',', '.')) ??
+          0;
+      double hargaSatuan = double.tryParse(hargaSatuanControllers[i]
+              .text
+              .replaceAll('.', '')
+              .replaceAll(',', '.')) ??
+          0;
 
-      int hargaTotal = jumlah * hargaSatuan;
-      hargaTotalControllers[i].text =
-          numberFormat.format(hargaTotal); // Format harga total
-
+      double hargaTotal = jumlah * hargaSatuan;
+      hargaTotalControllers[i].text = numberFormat.format(hargaTotal);
+      print(jumlah);
       totalHarga += hargaTotal;
     }
 
@@ -318,11 +327,11 @@ class _PemasukanPageState extends State<PemasukanPage> {
       return;
     }
 
-    int totalSetelahPotongan = totalHarga - potongan;
+    double totalSetelahPotongan = totalHarga - potongan;
 
     totalcontroller.text = numberFormat.format(totalSetelahPotongan);
 
-    int kembalianValue = bayar - totalSetelahPotongan;
+    double kembalianValue = bayar - totalSetelahPotongan;
     kembalian = (kembalianValue > 0) ? kembalianValue : 0;
 
     setState(() {
@@ -448,9 +457,7 @@ class _PemasukanPageState extends State<PemasukanPage> {
                 // int? idBarang = barang['id'] ?? 0;
                 int? idBarang = int.tryParse(barang['id'].toString()) ?? 0;
 
-
-                String displayText =
-                    '$namaBarang@$formattedHargaBarang';
+                String displayText = '$namaBarang@$formattedHargaBarang';
 
                 return ListTile(
                   title:
@@ -473,6 +480,20 @@ class _PemasukanPageState extends State<PemasukanPage> {
     );
 
     Overlay.of(context)!.insert(overlayEntry!);
+  }
+
+  List<TextInputFormatter> getInputFormatters(String initialInput) {
+    if (initialInput.startsWith('0') || initialInput.isEmpty) {
+      return [
+        FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*\.?[0-9]*$')),
+        CustomRupiahFormatter(),
+      ];
+    } else {
+      return [
+        FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*\.?[0-9]*$')),
+        RupiahFormatter(),
+      ];
+    }
   }
 
   void removeSuggestionsOverlay() {
@@ -898,9 +919,9 @@ class _PemasukanPageState extends State<PemasukanPage> {
                                                         controller:
                                                             jumlahControllers[
                                                                 index],
-                                                        keyboardType:
-                                                            TextInputType
-                                                                .number,
+                                                        keyboardType: TextInputType
+                                                            .numberWithOptions(
+                                                                decimal: true),
                                                         enableInteractiveSelection:
                                                             false,
                                                         obscureText: false,
@@ -970,12 +991,11 @@ class _PemasukanPageState extends State<PemasukanPage> {
                                                                       horizontal:
                                                                           12),
                                                         ),
-                                                        inputFormatters: [
-                                                          FilteringTextInputFormatter
-                                                              .allow(RegExp(
-                                                                  r'[0-9.]')),
-                                                          RupiahFormatter()
-                                                        ],
+                                                         inputFormatters: [CustomRupiahFormatter()],
+                                                            // getInputFormatters(
+                                                            //     jumlahControllers[
+                                                            //             index]
+                                                            //         .text),
                                                         cursorColor:
                                                             cursorColor,
                                                         onSubmitted: (value) {

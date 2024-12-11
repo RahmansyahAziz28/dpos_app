@@ -6,6 +6,7 @@ import 'package:dpos/page/pengeluaran.dart';
 import 'package:flutter/material.dart';
 import 'package:blue_thermal_printer/blue_thermal_printer.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -17,7 +18,7 @@ class Homepage extends StatefulWidget {
 class _HomepageState extends State<Homepage> {
   BlueThermalPrinter printer = BlueThermalPrinter.instance;
 
-    @override
+  @override
   void initState() {
     super.initState();
     _checkBluetoothPermission();
